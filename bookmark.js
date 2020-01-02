@@ -1,39 +1,76 @@
-const bookMarkForm = document.querySelector(".js-bookMarkForm"),
-    bookMarkInput = bookMarkForm.querySelector("input"),
+const bookmarkForm = document.querySelector(".js-bookMarkForm"),
+    bookmarkInput = bookmarkForm.querySelectorAll("input"),
     bookMarkList = document.querySelector(".js-bookMarkList");
 
+const BOOKMARK_LS = "bookmark";
 
-const BOOKMARK_LS = "bookMarks";
+let bookmarks = [];
 
-
-
-function paintBookMark (text) {
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-
-    span.innerText = "text";
-    li.appendChild(span);
+function deleteBookmark(event){
+    const btn = event.target;
+    const li = btn.parentNode;
+    bookMarkList.removeChild(li);
+    const cleanBookmarks = bookmarks.filter(function (bookmark){
+        return bookmark.id !== parseInt(li.id);
+    });
+    bookmarks = cleanBookmarks;
+    saveBookmarks();
 }
 
+function paintBookmark (name, link) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    const newId = bookmarks.length + 1;
+    const delBtn = document.createElement("button");
 
-function loadbookMark () {
-    const loadedbookMark = localStorage.getItem(BOOKMARK_LS);
-    if (loadedbookMark !== null) {
-        paintBookMark();
+    delBtn.innerText = "삭제"
+    delBtn.addEventListener("click", deleteBookmark);
+
+    a.innerText = name;
+    a.href = link;
+
+    li.appendChild(delBtn);
+    li.appendChild(a);
+    bookMarkList.appendChild(li);
+
+    li.id = newId;
+
+    const bookMarksObj = {
+        siteName : name,
+        hyperlink : link,
+        id : newId
+    };
+    
+    bookmarks.push(bookMarksObj);
+    saveBookmarks();
+}
+
+function saveBookmarks () {
+    localStorage.setItem(BOOKMARK_LS, JSON.stringify(bookmarks));
+}
+
+function loadBookmarks () {
+    const loadedBookMark = localStorage.getItem(BOOKMARK_LS);
+    if (loadedBookMark !== null) {
+        const parsedBookmarks = JSON.parse(loadedBookMark);
+        parsedBookmarks.forEach(function (bookmark) {
+            paintBookmark(bookmark.siteName, bookmark.hyperlink);
+        })
     } else {
-
+        
     }
 }
 
-function bookMarkHandleSubmit(event){
+function submit_bookMarkHandle(event){
     event.preventDefault();
-    const currentValue = bookMarkInput.value;
-    paintBookMark(currentValue);
+    paintBookmark(bookmarkInput[0].value, bookmarkInput[1].value);
+    bookmarkInput[0].value = "";
+    bookmarkInput[1].value = "";
 }
 
 function init() {
-    loadbookMark();
-    bookMarkForm.addEventListener("submit", bookMarkHandleSubmit);
+    loadBookmarks();
+    bookmarkForm.addEventListener("submit", submit_bookMarkHandle);
 }
 
 init();
