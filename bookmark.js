@@ -2,7 +2,14 @@ const bookmarkForm = document.querySelector(".js-bookMarkForm"),
     bookmarkInput = bookmarkForm.querySelectorAll("input"),
     bookMarkList = document.querySelector(".js-bookMarkList");
 
+const editForm = document.querySelector(".js-editForm"),
+    editBtn = editForm.querySelector("input");
+
 const BOOKMARK_LS = "bookmark";
+
+const UNSHOWING_CN = "unshowing";
+
+
 
 let bookmarks = [];
 
@@ -17,14 +24,24 @@ function deleteBookmark(event){
     saveBookmarks();
 }
 
+function editBookmark () {
+    const allDelBtn = bookMarkList.querySelectorAll("button");
+    allDelBtn.forEach(function (delBtn) {
+        delBtn.classList.toggle(UNSHOWING_CN);
+    });
+}
+
 function paintBookmark (name, link) {
     const li = document.createElement("li");
     const a = document.createElement("a");
     const newId = bookmarks.length + 1;
     const delBtn = document.createElement("button");
 
-    delBtn.innerText = "삭제"
+    delBtn.classList.add(UNSHOWING_CN);
+    delBtn.innerText = "삭제";
     delBtn.addEventListener("click", deleteBookmark);
+
+    editBtn.addEventListener("click", editBookmark);
 
     a.innerText = name;
     a.href = link;
@@ -71,6 +88,7 @@ function submit_bookMarkHandle(event){
 function init() {
     loadBookmarks();
     bookmarkForm.addEventListener("submit", submit_bookMarkHandle);
+    
 }
 
 init();
